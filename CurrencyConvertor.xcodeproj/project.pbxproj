@@ -15,6 +15,8 @@
 		1F51976C2BD7A3FA0082F760 /* CurrencyConvertorUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F51976B2BD7A3FA0082F760 /* CurrencyConvertorUITests.swift */; };
 		1F51976E2BD7A3FA0082F760 /* CurrencyConvertorUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F51976D2BD7A3FA0082F760 /* CurrencyConvertorUITestsLaunchTests.swift */; };
 		1F51977E2BD7CB300082F760 /* CurrencyInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F51977D2BD7CB300082F760 /* CurrencyInputView.swift */; };
+		1F5197832BD7D4EF0082F760 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5197822BD7D4EF0082F760 /* HeaderView.swift */; };
+		1F5197852BD7D5910082F760 /* ConverterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5197842BD7D5910082F760 /* ConverterView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,6 +48,8 @@
 		1F51976B2BD7A3FA0082F760 /* CurrencyConvertorUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyConvertorUITests.swift; sourceTree = "<group>"; };
 		1F51976D2BD7A3FA0082F760 /* CurrencyConvertorUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyConvertorUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		1F51977D2BD7CB300082F760 /* CurrencyInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyInputView.swift; sourceTree = "<group>"; };
+		1F5197822BD7D4EF0082F760 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
+		1F5197842BD7D5910082F760 /* ConverterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConverterView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,6 +138,8 @@
 			isa = PBXGroup;
 			children = (
 				1F51977D2BD7CB300082F760 /* CurrencyInputView.swift */,
+				1F5197822BD7D4EF0082F760 /* HeaderView.swift */,
+				1F5197842BD7D5910082F760 /* ConverterView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -270,6 +276,8 @@
 			files = (
 				1F51977E2BD7CB300082F760 /* CurrencyInputView.swift in Sources */,
 				1F5197532BD7A3F60082F760 /* ContentView.swift in Sources */,
+				1F5197852BD7D5910082F760 /* ConverterView.swift in Sources */,
+				1F5197832BD7D4EF0082F760 /* HeaderView.swift in Sources */,
 				1F5197512BD7A3F60082F760 /* CurrencyConvertorApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
