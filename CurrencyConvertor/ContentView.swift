@@ -8,14 +8,34 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State var sourceVal: String = ""
+    @State var destVal: String = ""
+    @State var sourceCurrency: String = "INR"
+    @State var destCurrency: String = "USD"
+    
+    @FocusState private var focusedField: Bool
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        VStack(alignment: .leading) {
+            Text("Currency Convertor")
+                .font(.largeTitle)
+                .fontWeight(.medium)
+                .padding(.bottom, 20)
+            Text("From")
+            CurrencyInputView(value: $sourceVal, selectedCurrency: $sourceCurrency) {
+                // TODO:- show bottom-sheet for source currency selection
+            }
+            .onAppear(perform: {
+                focusedField = true
+            })
+            .focused($focusedField)
+            Text("To")
+            CurrencyInputView(value: $destVal, selectedCurrency: $destCurrency) {
+                // TODO:- show bottom-sheet for destination currency selection
+            }
+            Spacer()
         }
-        .padding()
+        .padding(10)
     }
 }
 

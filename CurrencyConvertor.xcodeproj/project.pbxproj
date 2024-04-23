@@ -14,6 +14,7 @@
 		1F5197622BD7A3FA0082F760 /* CurrencyConvertorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F5197612BD7A3FA0082F760 /* CurrencyConvertorTests.swift */; };
 		1F51976C2BD7A3FA0082F760 /* CurrencyConvertorUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F51976B2BD7A3FA0082F760 /* CurrencyConvertorUITests.swift */; };
 		1F51976E2BD7A3FA0082F760 /* CurrencyConvertorUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F51976D2BD7A3FA0082F760 /* CurrencyConvertorUITestsLaunchTests.swift */; };
+		1F51977E2BD7CB300082F760 /* CurrencyInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F51977D2BD7CB300082F760 /* CurrencyInputView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +45,7 @@
 		1F5197672BD7A3FA0082F760 /* CurrencyConvertorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CurrencyConvertorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F51976B2BD7A3FA0082F760 /* CurrencyConvertorUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyConvertorUITests.swift; sourceTree = "<group>"; };
 		1F51976D2BD7A3FA0082F760 /* CurrencyConvertorUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyConvertorUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		1F51977D2BD7CB300082F760 /* CurrencyInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyInputView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +96,7 @@
 		1F51974F2BD7A3F60082F760 /* CurrencyConvertor */ = {
 			isa = PBXGroup;
 			children = (
+				1F51977C2BD7CB260082F760 /* Views */,
 				1F5197502BD7A3F60082F760 /* CurrencyConvertorApp.swift */,
 				1F5197522BD7A3F60082F760 /* ContentView.swift */,
 				1F5197542BD7A3F90082F760 /* Assets.xcassets */,
@@ -125,6 +128,14 @@
 				1F51976D2BD7A3FA0082F760 /* CurrencyConvertorUITestsLaunchTests.swift */,
 			);
 			path = CurrencyConvertorUITests;
+			sourceTree = "<group>";
+		};
+		1F51977C2BD7CB260082F760 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1F51977D2BD7CB300082F760 /* CurrencyInputView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -257,6 +268,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1F51977E2BD7CB300082F760 /* CurrencyInputView.swift in Sources */,
 				1F5197532BD7A3F60082F760 /* ContentView.swift in Sources */,
 				1F5197512BD7A3F60082F760 /* CurrencyConvertorApp.swift in Sources */,
 			);
