@@ -26,8 +26,9 @@ class CurrencyModel: ObservableObject {
         $value
             .removeDuplicates()
             .sink { [weak self] value in
+                guard let `self` else { return }
                 do {
-                    try self?.convertToDestination(value: value, rates: 1)
+                    self.convertedValue = try self.convert(value)
                 } catch {
                     print(error)
                 }
@@ -37,8 +38,21 @@ class CurrencyModel: ObservableObject {
         $convertedValue
             .removeDuplicates()
             .sink { [weak self] val in
+                guard let `self` else { return }
                 do {
-                    try self?.convertToSource(value: val, rates: 1)
+                    self.value = try self.convert(val, toSource: true)
+                } catch {
+                    print(error)
+                }
+            }
+            .store(in: &cancellable)
+        
+        $destinationCurrency
+            .removeDuplicates()
+            .sink { [weak self] value in
+                guard let `self` else { return }
+                do {
+                    self.convertedValue = try self.convert(self.value)
                 } catch {
                     print(error)
                 }
@@ -66,29 +80,33 @@ class CurrencyModel: ObservableObject {
             .sorted(using: SortDescriptor(\.code, comparator: .lexical, order: .forward))
     }
     
-    func convertToDestination(value: String, rates: Double) throws {
+    func convert(_ value: String, toSource: Bool = false) throws -> String {
         guard !value.isEmpty else {
-            self.convertedValue = ""
-            return
+            return ""
         }
         guard let value = Double(value) else {
             throw ConversionError.invalidValue
         }
-        convertedValue = String(value * rates)
+        guard let rates = exchangeRates?.rates[self.destinationCurrency] else {
+            throw ConversionError.exchangeRateNotFound
+        }
+        return if toSource {
+            String(convertToSource(value, rates))
+        } else {
+            String(convertToDestination(value, rates))
+        }
     }
     
-    func convertToSource(value: String, rates: Double) throws {
-        guard !value.isEmpty else {
-            self.value = ""
-            return
-        }
-        guard let value = Double(value) else {
-            throw ConversionError.invalidValue
-        }
-        self.value = String(value / rates)
+    func convertToDestination(_ value: Double, _ rates: Double) -> Double {
+        return value * rates
+    }
+    
+    func convertToSource(_ value: Double, _ rates: Double) -> Double {
+        return value / rates
     }
 }
 
 enum ConversionError: Error {
     case invalidValue
+    case exchangeRateNotFound
 }
