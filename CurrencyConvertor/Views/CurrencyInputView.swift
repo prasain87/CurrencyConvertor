@@ -10,7 +10,7 @@ import SwiftUI
 struct CurrencyInputView: View {
     @Binding var value: String
     @Binding var selectedCurrency: String
-    let action: () -> Void
+    let action: (() -> Void)?
     
     var body: some View {
         HStack {
@@ -18,11 +18,11 @@ struct CurrencyInputView: View {
                 .font(.title2)
                 .keyboardType(.decimalPad)
             Button(action: {
-                action()
+                action?()
             }, label: {
                 Label(selectedCurrency, systemImage: "arrowtriangle.down.fill")
-                    .foregroundStyle(.blue)
             })
+            .disabled(action == nil)
         }
         .padding(10)
         .overlay(

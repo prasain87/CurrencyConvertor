@@ -9,11 +9,12 @@ import Foundation
 import Combine
 
 class CurrencyModel: ObservableObject {
-    @Published var exchangeRates: ExchangeRates?
+    @Published private(set) var exchangeRates: ExchangeRates?
     @Published var destinationCurrency: String = ""
     @Published var sourceCurrency = "USD"
     @Published var value: String = ""
     @Published var convertedValue: String = ""
+    
     private(set) var currencyList: [Currency] = []
     
     let service: CurrencyService

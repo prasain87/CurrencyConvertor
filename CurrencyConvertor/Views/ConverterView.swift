@@ -16,10 +16,11 @@ struct ConverterView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            CurrencyInputView(value: $model.value, selectedCurrency: $model.sourceCurrency) {
-                // TODO:- show bottom-sheet for source currency selection
-            }
-            .focused($focusedField)
+            // Source currency text-field
+            // passed nil action to disable it because base parameter not supported for API calls with free account
+            CurrencyInputView(value: $model.value, selectedCurrency: $model.sourceCurrency, action: nil)
+                .focused($focusedField)
+    
             CurrencyInputView(value: $model.convertedValue, selectedCurrency: $model.destinationCurrency) {
                 showCurrencyList = true
             }
