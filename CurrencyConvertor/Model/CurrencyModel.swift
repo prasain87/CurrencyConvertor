@@ -10,10 +10,11 @@ import Combine
 
 class CurrencyModel: ObservableObject {
     @Published var exchangeRates: ExchangeRates?
-    @Published var destinationCurrency: String = "INR"
+    @Published var destinationCurrency: String = ""
     @Published var sourceCurrency = "USD"
     @Published var value: String = ""
     @Published var convertedValue: String = ""
+    private(set) var currencyList: [Currency] = []
     
     let service: CurrencyService
     
@@ -43,6 +44,26 @@ class CurrencyModel: ObservableObject {
                 }
             }
             .store(in: &cancellable)
+    }
+    
+    @MainActor
+    func updateCurrencylist() async {
+        do {
+            currencyList = try await fetchCurrencyList()
+            if let first = currencyList.first {
+                destinationCurrency = first.code
+            }
+            
+            exchangeRates = try await service.fetchExchangeRates(baseCurrencyCode: sourceCurrency)
+        } catch {
+            print(error)
+        }
+    }
+    
+    func fetchCurrencyList() async throws -> [Currency] {
+        return try await service.fetchCurrencyList()
+            .map({ Currency(name: $1, code: $0) })
+            .sorted(using: SortDescriptor(\.code, comparator: .lexical, order: .forward))
     }
     
     func convertToDestination(value: String, rates: Double) throws {

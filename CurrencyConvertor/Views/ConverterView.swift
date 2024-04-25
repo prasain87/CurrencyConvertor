@@ -7,28 +7,28 @@
 
 import SwiftUI
 
+@MainActor
 struct ConverterView: View {
-    @State var sourceVal: String = ""
-    @State var destVal: String = ""
-    @State var sourceCurrency: String = "INR"
-    @State var destCurrency: String = "USD"
-    
+    @ObservedObject var model: CurrencyModel
     @FocusState private var focusedField: Bool
+    
+    @State private var showCurrencyList: Bool = false
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text("From")
-            CurrencyInputView(value: $sourceVal, selectedCurrency: $sourceCurrency) {
+            CurrencyInputView(value: $model.value, selectedCurrency: $model.sourceCurrency) {
                 // TODO:- show bottom-sheet for source currency selection
             }
-            .onAppear(perform: {
-                focusedField = true
-            })
             .focused($focusedField)
-            Text("To")
-            CurrencyInputView(value: $destVal, selectedCurrency: $destCurrency) {
-                // TODO:- show bottom-sheet for destination currency selection
+            CurrencyInputView(value: $model.convertedValue, selectedCurrency: $model.destinationCurrency) {
+                showCurrencyList = true
             }
+        }
+        .sheet(isPresented: $showCurrencyList) {
+            CurrencyListView(selectedCurrency: $model.destinationCurrency, currencyList: model.currencyList)
+        }
+        .onAppear {
+            focusedField = true
         }
     }
 }

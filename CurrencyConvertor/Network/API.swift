@@ -9,7 +9,8 @@ import Foundation
 
 enum API {
     private static let app_id = "f9a0725f9d8449ab8f98358e91d6f523"
-    static let host = "openexchangerates.org"
+    private static let host = "openexchangerates.org"
+    
     case currencies
     case exchangeRates(base: String)
 }
@@ -19,15 +20,15 @@ extension API {
         var cmp = URLComponents()
         cmp.scheme = "https"
         cmp.host = API.host
-        
+        cmp.queryItems = [
+            URLQueryItem(name: "app_id", value: API.app_id)
+        ]
         switch self {
         case .currencies:
             cmp.path = "/api/currencies.json"
         case .exchangeRates(let base):
             cmp.path = "/api/latest.json"
-            cmp.queryItems = [
-                URLQueryItem(name: "base", value: base)
-            ]
+            cmp.queryItems?.append(URLQueryItem(name: "base", value: base))
         }
         
         return cmp.url

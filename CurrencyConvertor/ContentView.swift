@@ -8,13 +8,22 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject var model = CurrencyModel(service: Service())
+    
     var body: some View {
-        VStack(alignment: .leading) {
-            HeaderView(title: "Currency Convertor")
-            ConverterView()
-            Spacer()
+        NavigationStack {
+            VStack {
+                ConverterView(model: model)
+                    .padding(10)
+                Spacer()
+            }
+            .navigationTitle("Currency Convertor")
         }
-        .padding(10)
+        .onAppear {
+            Task {
+                await model.updateCurrencylist()
+            }
+        }
     }
 }
 
