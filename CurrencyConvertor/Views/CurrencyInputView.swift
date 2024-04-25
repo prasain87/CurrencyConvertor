@@ -16,7 +16,7 @@ struct CurrencyInputView: View {
         HStack {
             TextField("", text: $value)
                 .font(.title2)
-                .keyboardType(.numberPad)
+                .keyboardType(.decimalPad)
             Button(action: {
                 action()
             }, label: {
