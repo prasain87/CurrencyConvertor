@@ -9,9 +9,11 @@ import Foundation
 import Combine
 
 class CurrencyModel: ObservableObject {
-    @Published private(set) var exchangeRates: ExchangeRates?
+    private static let defaultSourceCurrency = "USD"
+    
+    @Published private(set) var exchangeRates: ExchangeRates = ExchangeRates(base: defaultSourceCurrency, rates: [:])
     @Published var destinationCurrency: String = ""
-    @Published var sourceCurrency = "USD"
+    @Published var sourceCurrency = defaultSourceCurrency
     @Published var value: String = ""
     @Published var convertedValue: String = ""
     
@@ -62,23 +64,31 @@ class CurrencyModel: ObservableObject {
     }
     
     @MainActor
-    func updateCurrencylist() async {
-        do {
-            currencyList = try await fetchCurrencyList()
-            if let first = currencyList.first {
-                destinationCurrency = first.code
-            }
-            
-            exchangeRates = try await service.fetchExchangeRates(baseCurrencyCode: sourceCurrency)
-        } catch {
-            print(error)
+    func updateCurrencylist() async throws {
+        exchangeRates = try await service.fetchExchangeRates(baseCurrencyCode: sourceCurrency)
+        // Need to show error. This data block the user.
+        if exchangeRates.rates.isEmpty {
+            throw APIError.noData
+        }
+
+        currencyList = try await fetchCurrencyList()
+        // Need to show error. This data block the user.
+        if currencyList.isEmpty {
+            throw APIError.noData
+        }
+        if let first = currencyList.first {
+            destinationCurrency = first.code
         }
     }
     
     func fetchCurrencyList() async throws -> [Currency] {
         return try await service.fetchCurrencyList()
             .map({ Currency(name: $1, code: $0) })
-            .sorted(using: SortDescriptor(\.code, comparator: .lexical, order: .forward))
+            .sorted(by: { $0.name < $1.name })
+    }
+    
+    func isShowProgress() -> Bool {
+        currencyList.isEmpty
     }
     
     func convert(_ value: String, toSource: Bool = false) throws -> String {
@@ -88,8 +98,8 @@ class CurrencyModel: ObservableObject {
         guard let value = Double(value) else {
             throw ConversionError.invalidValue
         }
-        guard let rates = exchangeRates?.rates[self.destinationCurrency] else {
-            throw ConversionError.exchangeRateNotFound
+        guard let rates = exchangeRates.rates[self.destinationCurrency] else {
+            throw ConversionError.exchangeRateNotFound(self.destinationCurrency)
         }
         return if toSource {
             String(convertToSource(value, rates))
@@ -105,9 +115,4 @@ class CurrencyModel: ObservableObject {
     func convertToSource(_ value: Double, _ rates: Double) -> Double {
         return value / rates
     }
-}
-
-enum ConversionError: Error {
-    case invalidValue
-    case exchangeRateNotFound
 }
