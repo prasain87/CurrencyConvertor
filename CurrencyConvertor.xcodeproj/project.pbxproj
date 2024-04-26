@@ -27,6 +27,7 @@
 		1FC946B12BDA94B7001F2C4E /* ConversionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC946B02BDA94B7001F2C4E /* ConversionError.swift */; };
 		1FC946B32BDAA028001F2C4E /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC946B22BDAA028001F2C4E /* ErrorView.swift */; };
 		1FC946B52BDAA1B8001F2C4E /* ErrorWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC946B42BDAA1B8001F2C4E /* ErrorWrapper.swift */; };
+		1FC946B92BDBB94C001F2C4E /* ConversionListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC946B82BDBB94C001F2C4E /* ConversionListView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +71,7 @@
 		1FC946B02BDA94B7001F2C4E /* ConversionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversionError.swift; sourceTree = "<group>"; };
 		1FC946B22BDAA028001F2C4E /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
 		1FC946B42BDAA1B8001F2C4E /* ErrorWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorWrapper.swift; sourceTree = "<group>"; };
+		1FC946B82BDBB94C001F2C4E /* ConversionListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversionListView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -165,6 +167,7 @@
 				1F5197842BD7D5910082F760 /* ConverterView.swift */,
 				1F44C1D02BDA487200445428 /* CurrencyListView.swift */,
 				1FC946B22BDAA028001F2C4E /* ErrorView.swift */,
+				1FC946B82BDBB94C001F2C4E /* ConversionListView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -320,6 +323,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1FC946B92BDBB94C001F2C4E /* ConversionListView.swift in Sources */,
 				1F51977E2BD7CB300082F760 /* CurrencyInputView.swift in Sources */,
 				1F5197532BD7A3F60082F760 /* ContentView.swift in Sources */,
 				1F5197852BD7D5910082F760 /* ConverterView.swift in Sources */,

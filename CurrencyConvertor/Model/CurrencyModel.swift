@@ -12,14 +12,9 @@ class CurrencyModel: ObservableObject {
     private static let defaultSourceCurrency = "USD"
     
     @Published private(set) var exchangeRates: ExchangeRates = ExchangeRates(base: defaultSourceCurrency, rates: [:])
-    @Published var destinationCurrency: String = "" {
-        didSet {
-            self.convertToDestination(value, currencyCode: self.destinationCurrency)
-        }
-    }
-    @Published var sourceCurrency = defaultSourceCurrency
-    @Published var value: String = ""
-    @Published var convertedValue: String = ""
+    @Published var sourceCurrency = Locale.current.currency?.identifier ?? defaultSourceCurrency
+    @Published var inputValue: String = ""
+    @Published var conversionList: [Conversion] = []
     
     private(set) var currencyList: [Currency] = []
     
@@ -29,38 +24,35 @@ class CurrencyModel: ObservableObject {
     
     init(service: CurrencyService) {
         self.service = service
-        $value
+        $inputValue
             .removeDuplicates()
             .sink { [weak self] value in
                 guard let `self` else { return }
-                self.convertToDestination(value, currencyCode: self.destinationCurrency)
+                self.updateConversions(input: value, for: self.sourceCurrency)
             }
             .store(in: &cancellable)
         
-        $convertedValue
+        $sourceCurrency
             .removeDuplicates()
-            .sink { [weak self] val in
-                guard let `self` else { return }
-                self.convertToSource(val, currencyCode: self.destinationCurrency)
+            .sink { [weak self] code in
+                guard let `self`, !self.inputValue.isEmpty else { return }
+                self.updateConversions(input: self.inputValue, for: code)
             }
-            .store(in: &cancellable)        
+            .store(in: &cancellable)
     }
     
     @MainActor
     func updateCurrencylist() async throws {
-        exchangeRates = try await service.fetchExchangeRates(baseCurrencyCode: sourceCurrency)
-        // Need to show error. This data block the user.
-        if exchangeRates.rates.isEmpty {
-            throw APIError.noData
-        }
-
         currencyList = try await fetchCurrencyList()
         // Need to show error. This data block the user.
         if currencyList.isEmpty {
             throw APIError.noData
         }
-        if let first = currencyList.first {
-            destinationCurrency = first.code
+
+        exchangeRates = try await service.fetchExchangeRates(baseCurrencyCode: CurrencyModel.defaultSourceCurrency)
+        // Need to show error. This data block the user.
+        if exchangeRates.rates.isEmpty {
+            throw APIError.noData
         }
     }
     
@@ -77,36 +69,50 @@ class CurrencyModel: ObservableObject {
 }
 
 extension CurrencyModel {
-    func convert(_ value: String, currencyCode: String, toSource: Bool = false) throws -> String {
+    func updateConversions(input: String, for code: String) {
+        if input.isEmpty {
+            self.conversionList.removeAll()
+        } else {
+            self.conversionList = self.currencyList
+                .filter({$0.code != code})
+                .map({
+                    let conversion = try? self.convert(input, from: code, to: $0.code)
+                    return Conversion(currency: $0, value: conversion ?? "")
+                })
+        }
+    }
+    
+    func convert(_ value: String, from source: String, to destination: String) throws -> String {
         guard !value.isEmpty else {
             return ""
         }
         guard let value = Double(value) else {
             throw ConversionError.invalidValue
         }
-        guard let rates = exchangeRates.rates[currencyCode] else {
-            throw ConversionError.exchangeRateNotFound(currencyCode)
-        }
-        return if toSource {
-            String(value / rates)
-        } else {
-            String(value * rates)
-        }
+        let rates_usd_src = exchangeRates.rates[safe: source] ?? 1
+        let rates_usd_dst = exchangeRates.rates[safe: destination] ?? 1
+        let conversion = value / rates_usd_src * rates_usd_dst
+        
+        return "\(conversion)"
     }
-    
-    func convertToDestination(_ value: String, currencyCode: String) {
-        do {
-            convertedValue = try self.convert(value, currencyCode: destinationCurrency)
-        } catch {
-            print(error)
-        }
+}
+
+struct Conversion {
+    let currency: Currency
+    let value: String
+}
+
+extension Conversion: Identifiable {
+    var id: String {
+        currency.code
     }
-    
-    func convertToSource(_ value: String, currencyCode: String) {
-        do {
-            self.value = try self.convert(value, currencyCode: currencyCode, toSource: true)
-        } catch {
-            print(error)
+}
+
+extension Dictionary {
+    subscript(safe key: Key) -> Value? {
+        guard let val = self[key] else {
+            return nil
         }
+        return val
     }
 }

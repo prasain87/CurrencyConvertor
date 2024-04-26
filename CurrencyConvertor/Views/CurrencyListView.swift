@@ -28,8 +28,6 @@ struct CurrencyListView: View {
                     }
             }
             .listStyle(.plain)
-            .presentationDetents([.fraction(0.8)])
-            .presentationDragIndicator(.visible)
         }
     }
 }

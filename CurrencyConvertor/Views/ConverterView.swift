@@ -16,17 +16,16 @@ struct ConverterView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            // Source currency text-field
-            // passed nil action to disable it because base parameter not supported for API calls with free account
-            CurrencyInputView(value: $model.value, selectedCurrency: $model.sourceCurrency, action: nil)
-                .focused($focusedField)
-    
-            CurrencyInputView(value: $model.convertedValue, selectedCurrency: $model.destinationCurrency) {
+            CurrencyInputView(value: $model.inputValue, selectedCurrency: $model.sourceCurrency) {
                 showCurrencyList = true
             }
+                .focused($focusedField)
+            ConversionListView(list: $model.conversionList)
         }
         .sheet(isPresented: $showCurrencyList) {
-            CurrencyListView(selectedCurrency: $model.destinationCurrency, currencyList: model.currencyList)
+            CurrencyListView(selectedCurrency: $model.sourceCurrency, currencyList: model.currencyList)
+                .presentationDetents([.fraction(0.8)])
+                .presentationDragIndicator(.visible)
         }
         .onAppear {
             focusedField = true
