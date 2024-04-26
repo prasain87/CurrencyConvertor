@@ -21,7 +21,7 @@ struct ContentView: View {
                     }
                 } else if model.isShowProgress() {
                     ProgressView()
-                    Text("Fetching data...")
+                    Text("Load data...")
                         .font(.caption)
                 } else {
                     ConverterView(model: model)
