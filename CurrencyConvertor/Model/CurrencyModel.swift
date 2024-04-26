@@ -12,11 +12,10 @@ class CurrencyModel: ObservableObject {
     static let defaultSourceCurrency = "USD"
     
     @Published private(set) var exchangeRates: ExchangeRates = ExchangeRates(rates: [:])
-    @Published var sourceCurrency = defaultSourceCurrency
+    @Published var selectedCurrency = defaultSourceCurrency
     @Published var inputValue: String = ""
     @Published var conversionList: [Conversion] = []
-    @Published var showLoading: Bool = true
-    private var refreshTimestamp: TimeInterval = 0
+    @Published private(set) var showLoading: Bool = true
     
     private(set) var currencyList: [Currency] = []
     
@@ -30,15 +29,16 @@ class CurrencyModel: ObservableObject {
             .removeDuplicates()
             .sink { [weak self] value in
                 guard let `self` else { return }
-                self.updateConversions(input: value, for: self.sourceCurrency)
+                self.updateConversions(input: value, for: self.selectedCurrency)
             }
             .store(in: &cancellable)
         
-        $sourceCurrency
+        $selectedCurrency
             .removeDuplicates()
             .sink { [weak self] code in
                 guard let `self`, !self.inputValue.isEmpty else { return }
                 self.updateConversions(input: self.inputValue, for: code)
+                self.refreshDataIfRequired()
             }
             .store(in: &cancellable)
     }
@@ -70,23 +70,33 @@ extension CurrencyModel {
             showLoading = false
             throw error
         }
-        refreshTimestamp = Date().timeIntervalSince1970
     }
 
     @MainActor
     func initialFetch() async throws {
+        let isRemoteFetch = service.canLoadFromRemote()
         try await updateCurrencylist()
+        if isRemoteFetch {
+            service.markLoadFromRemoteComplete()
+        }
         
         // set local currency as selected if present in the fetched currency list
         if let localCurrency = Locale.current.currency?.identifier, currencyList.contains(where: {$0.code == localCurrency}) {
-            sourceCurrency = localCurrency
+            selectedCurrency = localCurrency
         }
     }
     
-    func refreshData() {
-        let diffInMins = Date().timeIntervalSince(Date(timeIntervalSince1970: refreshTimestamp)) * 60
-        if diffInMins >= 30 {
-            
+    func refreshDataIfRequired() {
+        if service.canLoadFromRemote() {
+            Task {
+                do {
+                    try await updateCurrencylist()
+                    // This saves the timeStamp for the latest refresh from remote
+                    service.markLoadFromRemoteComplete()
+                } catch {
+                    // not throwing error as this is like a background update not user initiated so showing error at this point will confuse the user and impact the user experience
+                }
+            }
         }
     }
 }

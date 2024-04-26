@@ -16,17 +16,14 @@ struct ConverterView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            CurrencyInputView(value: $model.inputValue, selectedCurrency: $model.sourceCurrency) {
+            CurrencyInputView(value: $model.inputValue, selectedCurrency: $model.selectedCurrency) {
                 showCurrencyList = true
             }
                 .focused($focusedField)
             ConversionListView(list: $model.conversionList)
-                .refreshable {
-                    model.refreshData()
-                }
         }
         .sheet(isPresented: $showCurrencyList) {
-            CurrencyListView(selectedCurrency: $model.sourceCurrency, currencyList: model.currencyList)
+            CurrencyListView(selectedCurrency: $model.selectedCurrency, currencyList: model.currencyList)
                 .presentationDetents([.fraction(0.8)])
                 .presentationDragIndicator(.visible)
         }
