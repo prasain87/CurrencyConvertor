@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject var model = CurrencyModel(service: Service())
+    @StateObject var model = CurrencyModel(service: Service(networkSetvice: NetworkService()))
     @State private var errorWrapper: ErrorWrapper?
     
     var body: some View {
@@ -19,7 +19,7 @@ struct ContentView: View {
                         errorWrapper = nil
                         updateData()
                     }
-                } else if model.isShowProgress() {
+                } else if model.showLoading {
                     ProgressView()
                     Text("Load data...")
                         .font(.caption)
@@ -39,7 +39,7 @@ struct ContentView: View {
     func updateData() {
         Task {
             do {
-                try await model.updateCurrencylist()
+                try await model.initialFetch()
             } catch {
                 errorWrapper = ErrorWrapper(error: error, guidance: "This seems to be a network error. Please try again after sometime.")
             }

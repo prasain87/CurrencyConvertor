@@ -9,6 +9,6 @@ import Foundation
 
 struct ExchangeRates: Codable {
 //    let timestamp: Double
-    let base: String
+//    let base: String
     let rates: [String: Double]
 }

@@ -21,6 +21,9 @@ struct ConverterView: View {
             }
                 .focused($focusedField)
             ConversionListView(list: $model.conversionList)
+                .refreshable {
+                    model.refreshData()
+                }
         }
         .sheet(isPresented: $showCurrencyList) {
             CurrencyListView(selectedCurrency: $model.sourceCurrency, currencyList: model.currencyList)

@@ -9,12 +9,14 @@ import Foundation
 import Combine
 
 class CurrencyModel: ObservableObject {
-    private static let defaultSourceCurrency = "USD"
+    static let defaultSourceCurrency = "USD"
     
-    @Published private(set) var exchangeRates: ExchangeRates = ExchangeRates(base: defaultSourceCurrency, rates: [:])
-    @Published var sourceCurrency = Locale.current.currency?.identifier ?? defaultSourceCurrency
+    @Published private(set) var exchangeRates: ExchangeRates = ExchangeRates(rates: [:])
+    @Published var sourceCurrency = defaultSourceCurrency
     @Published var inputValue: String = ""
     @Published var conversionList: [Conversion] = []
+    @Published var showLoading: Bool = true
+    private var refreshTimestamp: TimeInterval = 0
     
     private(set) var currencyList: [Currency] = []
     
@@ -40,32 +42,53 @@ class CurrencyModel: ObservableObject {
             }
             .store(in: &cancellable)
     }
-    
-    @MainActor
-    func updateCurrencylist() async throws {
-        currencyList = try await fetchCurrencyList()
-        // Need to show error. This data block the user.
-        if currencyList.isEmpty {
-            throw APIError.noData
-        }
-
-        exchangeRates = try await service.fetchExchangeRates(baseCurrencyCode: CurrencyModel.defaultSourceCurrency)
-        // Need to show error. This data block the user.
-        if exchangeRates.rates.isEmpty {
-            throw APIError.noData
-        }
-    }
-    
+        
     func fetchCurrencyList() async throws -> [Currency] {
         return try await service.fetchCurrencyList()
             .map({ Currency(name: $1, code: $0) })
             .sorted(by: { $0.name < $1.name })
     }
-    
-    func isShowProgress() -> Bool {
-        currencyList.isEmpty
+}
+
+extension CurrencyModel {
+    @MainActor
+    func updateCurrencylist() async throws {
+        showLoading = currencyList.isEmpty || exchangeRates.rates.isEmpty
+        do {
+            currencyList = try await fetchCurrencyList()
+            // Need to show error. This data block the user.
+            if currencyList.isEmpty {
+                throw APIError.noData
+            }
+            exchangeRates = try await service.fetchExchangeRates(baseCurrencyCode: CurrencyModel.defaultSourceCurrency)
+            // Need to show error. This data block the user.
+            if exchangeRates.rates.isEmpty {
+                throw APIError.noData
+            }
+            showLoading = false
+        } catch {
+            showLoading = false
+            throw error
+        }
+        refreshTimestamp = Date().timeIntervalSince1970
+    }
+
+    @MainActor
+    func initialFetch() async throws {
+        try await updateCurrencylist()
+        
+        // set local currency as selected if present in the fetched currency list
+        if let localCurrency = Locale.current.currency?.identifier, currencyList.contains(where: {$0.code == localCurrency}) {
+            sourceCurrency = localCurrency
+        }
     }
     
+    func refreshData() {
+        let diffInMins = Date().timeIntervalSince(Date(timeIntervalSince1970: refreshTimestamp)) * 60
+        if diffInMins >= 30 {
+            
+        }
+    }
 }
 
 extension CurrencyModel {
@@ -91,20 +114,9 @@ extension CurrencyModel {
         }
         let rates_usd_src = exchangeRates.rates[safe: source] ?? 1
         let rates_usd_dst = exchangeRates.rates[safe: destination] ?? 1
-        let conversion = value / rates_usd_src * rates_usd_dst
+        let conversion = value * (rates_usd_dst / rates_usd_src)
         
         return "\(conversion)"
-    }
-}
-
-struct Conversion {
-    let currency: Currency
-    let value: String
-}
-
-extension Conversion: Identifiable {
-    var id: String {
-        currency.code
     }
 }
 
