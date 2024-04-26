@@ -12,7 +12,11 @@ class CurrencyModel: ObservableObject {
     private static let defaultSourceCurrency = "USD"
     
     @Published private(set) var exchangeRates: ExchangeRates = ExchangeRates(base: defaultSourceCurrency, rates: [:])
-    @Published var destinationCurrency: String = ""
+    @Published var destinationCurrency: String = "" {
+        didSet {
+            self.convertToDestination(value, currencyCode: self.destinationCurrency)
+        }
+    }
     @Published var sourceCurrency = defaultSourceCurrency
     @Published var value: String = ""
     @Published var convertedValue: String = ""
@@ -25,16 +29,11 @@ class CurrencyModel: ObservableObject {
     
     init(service: CurrencyService) {
         self.service = service
-        
         $value
             .removeDuplicates()
             .sink { [weak self] value in
                 guard let `self` else { return }
-                do {
-                    self.convertedValue = try self.convert(value)
-                } catch {
-                    print(error)
-                }
+                self.convertToDestination(value, currencyCode: self.destinationCurrency)
             }
             .store(in: &cancellable)
         
@@ -42,25 +41,9 @@ class CurrencyModel: ObservableObject {
             .removeDuplicates()
             .sink { [weak self] val in
                 guard let `self` else { return }
-                do {
-                    self.value = try self.convert(val, toSource: true)
-                } catch {
-                    print(error)
-                }
+                self.convertToSource(val, currencyCode: self.destinationCurrency)
             }
-            .store(in: &cancellable)
-        
-        $destinationCurrency
-            .removeDuplicates()
-            .sink { [weak self] value in
-                guard let `self` else { return }
-                do {
-                    self.convertedValue = try self.convert(self.value)
-                } catch {
-                    print(error)
-                }
-            }
-            .store(in: &cancellable)
+            .store(in: &cancellable)        
     }
     
     @MainActor
@@ -91,28 +74,39 @@ class CurrencyModel: ObservableObject {
         currencyList.isEmpty
     }
     
-    func convert(_ value: String, toSource: Bool = false) throws -> String {
+}
+
+extension CurrencyModel {
+    func convert(_ value: String, currencyCode: String, toSource: Bool = false) throws -> String {
         guard !value.isEmpty else {
             return ""
         }
         guard let value = Double(value) else {
             throw ConversionError.invalidValue
         }
-        guard let rates = exchangeRates.rates[self.destinationCurrency] else {
-            throw ConversionError.exchangeRateNotFound(self.destinationCurrency)
+        guard let rates = exchangeRates.rates[currencyCode] else {
+            throw ConversionError.exchangeRateNotFound(currencyCode)
         }
         return if toSource {
-            String(convertToSource(value, rates))
+            String(value / rates)
         } else {
-            String(convertToDestination(value, rates))
+            String(value * rates)
         }
     }
     
-    func convertToDestination(_ value: Double, _ rates: Double) -> Double {
-        return value * rates
+    func convertToDestination(_ value: String, currencyCode: String) {
+        do {
+            convertedValue = try self.convert(value, currencyCode: destinationCurrency)
+        } catch {
+            print(error)
+        }
     }
     
-    func convertToSource(_ value: Double, _ rates: Double) -> Double {
-        return value / rates
+    func convertToSource(_ value: String, currencyCode: String) {
+        do {
+            self.value = try self.convert(value, currencyCode: currencyCode, toSource: true)
+        } catch {
+            print(error)
+        }
     }
 }
